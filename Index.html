@@ -4,8 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Stream X</title>
-<meta name="description" content="Stream X - Short Video Platform">
+<meta name="description" content="Stream X - Short Video Platform for Pakistani Creators">
 <meta name="theme-color" content="#7c3aff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Stream X">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -376,6 +382,45 @@ img{display:block;max-width:100%}
   #modal-overlay.open,#comments-sheet.open,#share-sheet.open{transform:translateX(-50%)}
   #notif-banner.show{transform:translateX(-50%)}
 }
+
+/* STORIES */
+#stories-bar{display:flex;gap:12px;padding:12px 16px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0}
+#stories-bar::-webkit-scrollbar{display:none}
+.story-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0}
+.story-ring{width:58px;height:58px;border-radius:50%;background:var(--grad);padding:2.5px}
+.story-ring.seen{background:var(--border)}
+.story-avatar{width:100%;height:100%;border-radius:50%;background:var(--card);border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;overflow:hidden}
+.story-avatar img{width:100%;height:100%;object-fit:cover}
+.story-name{font-size:11px;font-weight:600;max-width:62px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#story-viewer{position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column}
+#story-viewer.open{display:flex}
+.story-progress-bar{display:flex;gap:4px;padding:10px 12px 6px;position:absolute;top:0;left:0;right:0;z-index:5}
+.story-seg{flex:1;height:3px;background:rgba(255,255,255,.3);border-radius:3px;overflow:hidden}
+.story-seg-fill{height:100%;background:#fff;width:0}
+.story-header{position:absolute;top:26px;left:0;right:0;z-index:5;display:flex;align-items:center;gap:10px;padding:0 14px}
+.story-user-av{width:36px;height:36px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;border:2px solid #fff;overflow:hidden}
+.story-user-av img{width:100%;height:100%;object-fit:cover}
+.story-user-name{font-size:14px;font-weight:700;color:#fff;flex:1}
+.story-time-label{font-size:12px;color:rgba(255,255,255,.7)}
+.story-media{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.story-tap-left{position:absolute;left:0;top:0;width:35%;height:100%;z-index:4}
+.story-tap-right{position:absolute;right:0;top:0;width:35%;height:100%;z-index:4}
+/* ANALYTICS */
+.analytics-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
+.analytics-stat{background:var(--card);border-radius:14px;padding:16px;border:1px solid var(--border);text-align:center}
+.analytics-stat-num{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.analytics-stat-label{font-size:12px;color:var(--muted);margin-top:4px}
+.analytics-chart{background:var(--card);border-radius:14px;padding:16px;margin:0 16px 16px;border:1px solid var(--border)}
+.analytics-chart h3{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--muted)}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-fill{width:100%;background:var(--grad);border-radius:4px 4px 0 0;min-height:4px}
+.bar-label{font-size:9px;color:var(--muted)}
+.top-video-item{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);align-items:center}
+.top-video-thumb{width:52px;height:52px;border-radius:10px;background:var(--card);object-fit:cover;flex-shrink:0}
+.top-video-info{flex:1;min-width:0}
+.top-video-caption{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-video-stats{font-size:12px;color:var(--muted);margin-top:3px}
 </style>
 </head>
 <body>
@@ -413,7 +458,26 @@ img{display:block;max-width:100%}
     <button class="home-tab active" onclick="switchFeedTab('foryou')">For You</button>
   </div>
   <button class="search-btn-home" onclick="showPage('search')"><i class="fas fa-search"></i></button>
-  <div id="feed-container"></div>
+  
+<!-- STORIES BAR (inside home) -->
+<div id="stories-bar" style="display:none"></div>
+
+<!-- STORY VIEWER -->
+<div id="story-viewer">
+  <div class="story-progress-bar" id="story-progress"></div>
+  <div class="story-header">
+    <div class="story-user-av" id="sv-avatar">?</div>
+    <div>
+      <div class="story-user-name" id="sv-username">@user</div>
+      <div class="story-time-label" id="sv-time">just now</div>
+    </div>
+    <button onclick="closeStoryViewer()" style="color:#fff;font-size:22px;margin-left:auto"><i class="fas fa-xmark"></i></button>
+  </div>
+  <img class="story-media" id="sv-media" src="" alt="">
+  <div class="story-tap-left" onclick="storyPrev()"></div>
+  <div class="story-tap-right" onclick="storyNext()"></div>
+</div>
+<div id="feed-container"></div>
 </div>
 
 <!-- SEARCH -->
@@ -534,6 +598,16 @@ img{display:block;max-width:100%}
     <h2 id="fp-title">Document</h2>
   </div>
   <div class="fp-content" id="fp-content"></div>
+</div>
+
+
+<!-- ANALYTICS PAGE -->
+<div class="page" id="analytics">
+  <div class="profile-header-bar">
+    <button class="icon-btn" onclick="goBack()"><i class="fas fa-arrow-left" style="font-size:18px"></i></button>
+    <h2>📊 My Analytics</h2>
+  </div>
+  <div id="analytics-body" style="overflow-y:auto;flex:1"></div>
 </div>
 
 <!-- BOTTOM NAV -->
@@ -736,9 +810,30 @@ window.addEventListener('load', () => {
         currentUser = user;
         await loadUserData(user.uid);
         document.getElementById('nav').style.display = 'flex';
-        showPage('home');
-        loadFeed();
         listenNotifications();
+        handleGoogleRedirect();
+        setTimeout(()=>loadStories(), 1500);
+        // Deep link handling
+        const params = new URLSearchParams(location.search);
+        const deepVideo = params.get('v');
+        const deepUser = params.get('u');
+        if (deepVideo) {
+          showPage('home');
+          await loadFeed(true);
+          // scroll to that video in feed
+          setTimeout(() => {
+            const el = document.querySelector(`.video-item[data-id="${deepVideo}"]`);
+            if (el) el.scrollIntoView();
+            else showToast('Video not found');
+          }, 1500);
+        } else if (deepUser) {
+          showPage('home');
+          loadFeed();
+          setTimeout(() => viewProfile(deepUser), 800);
+        } else {
+          showPage('home');
+          loadFeed();
+        }
       } else {
         showPage('auth');
         renderAuthForm('login');
@@ -841,13 +936,30 @@ async function doSignup() {
 async function doGoogle() {
   try {
     const provider = new firebase.auth.GoogleAuthProvider();
-    const cred = await auth.signInWithPopup(provider);
-    const snap = await db.collection('users').doc(cred.user.uid).get();
-    if (!snap.exists) {
-      await createUserProfile(cred.user, cred.user.displayName || 'User');
-      document.getElementById('guidelines-modal').classList.add('open');
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (isMobile) {
+      await auth.signInWithRedirect(provider);
+    } else {
+      const cred = await auth.signInWithPopup(provider);
+      const snap = await db.collection('users').doc(cred.user.uid).get();
+      if (!snap.exists) {
+        await createUserProfile(cred.user, cred.user.displayName || 'User');
+        document.getElementById('guidelines-modal').classList.add('open');
+      }
     }
   } catch(e) { showToast('Google sign-in failed'); }
+}
+async function handleGoogleRedirect() {
+  try {
+    const result = await auth.getRedirectResult();
+    if (result && result.user) {
+      const snap = await db.collection('users').doc(result.user.uid).get();
+      if (!snap.exists) {
+        await createUserProfile(result.user, result.user.displayName || 'User');
+        document.getElementById('guidelines-modal').classList.add('open');
+      }
+    }
+  } catch(e) {}
 }
 async function createUserProfile(user, name) {
   const clean = name.toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -906,7 +1018,7 @@ function showPage(page, data=null) {
   currentPage = page;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(page).classList.add('active');
-  const navMap = {home:'nav-home',search:'nav-search',upload:'nav-upload',notifications:'nav-notifications','my-profile':'nav-my-profile'};
+  const navMap = {home:'nav-home',search:'nav-search',upload:'nav-upload',notifications:'nav-notifications','my-profile':'nav-my-profile',analytics:'nav-my-profile'};
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (navMap[page]) document.getElementById(navMap[page]).classList.add('active');
   if (page === 'search') initSearch();
@@ -916,6 +1028,7 @@ function showPage(page, data=null) {
   if (page === 'profile' && data) { currentProfileUserId = data; renderUserProfile(data); }
   if (page === 'admin') { if (currentUserData?.email !== OWNER_EMAIL) { showToast('Access denied'); showPage('home'); return; } renderAdminTab('stats'); }
   if (page === 'upload') resetUpload();
+  if (page === 'analytics') openAnalytics();
 }
 function goBack() { showPage(prevPage); }
 
@@ -1136,6 +1249,10 @@ function setupFeedObserver() {
 
 async function recordView(videoId, authorId) {
   if (!currentUser) return;
+  // Duplicate prevention — only count once per session per video
+  const viewKey = `sx_viewed_${videoId}`;
+  if (sessionStorage.getItem(viewKey)) return;
+  sessionStorage.setItem(viewKey, '1');
   try {
     await db.collection('videos').doc(videoId).update({views: firebase.firestore.FieldValue.increment(1)});
     if (authorId && authorId !== currentUser.uid) {
@@ -1407,10 +1524,35 @@ function showVideoOptions(videoId, videoUserId) {
 }
 function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
 
-function saveVideo(videoId) {
-  let saved = JSON.parse(localStorage.getItem('sx_saved')||'[]');
-  if (!saved.includes(videoId)) { saved.push(videoId); localStorage.setItem('sx_saved',JSON.stringify(saved)); showToast('Saved ✓'); }
-  else showToast('Already saved');
+async function saveVideo(videoId) {
+  if (!currentUser) return showToast('Login to save');
+  const saveId = `${currentUser.uid}_${videoId}`;
+  try {
+    const snap = await db.collection('saves').doc(saveId).get();
+    if (snap.exists) {
+      await db.collection('saves').doc(saveId).delete();
+      // also remove from localStorage
+      let saved = JSON.parse(localStorage.getItem('sx_saved')||'[]');
+      saved = saved.filter(id => id !== videoId);
+      localStorage.setItem('sx_saved', JSON.stringify(saved));
+      showToast('Removed from saved');
+    } else {
+      await db.collection('saves').doc(saveId).set({
+        userId: currentUser.uid,
+        videoId: videoId,
+        savedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      // also save to localStorage as backup
+      let saved = JSON.parse(localStorage.getItem('sx_saved')||'[]');
+      if (!saved.includes(videoId)) { saved.push(videoId); localStorage.setItem('sx_saved', JSON.stringify(saved)); }
+      showToast('Saved ✓');
+    }
+  } catch(e) {
+    // fallback to localStorage if Firestore fails
+    let saved = JSON.parse(localStorage.getItem('sx_saved')||'[]');
+    if (!saved.includes(videoId)) { saved.push(videoId); localStorage.setItem('sx_saved',JSON.stringify(saved)); showToast('Saved ✓'); }
+    else showToast('Already saved');
+  }
 }
 
 async function deleteVideo(videoId) {
@@ -2264,6 +2406,198 @@ async function adminSendNotifAll() {
   } catch(e) { showToast('Failed to send'); }
 }
 
+
+// ═══════════════════════════════════════════
+// STORIES
+// ═══════════════════════════════════════════
+let currentStories = [];
+let currentStoryIndex = 0;
+let storyTimer = null;
+const STORY_DURATION = 5000;
+
+async function loadStories() {
+  const bar = document.getElementById('stories-bar');
+  if (!bar || !currentUser) return;
+  try {
+    const expiry = new Date(Date.now() - 24*60*60*1000);
+    const snap = await db.collection('stories')
+      .where('createdAt','>=', firebase.firestore.Timestamp.fromDate(expiry))
+      .orderBy('createdAt','desc').limit(50).get();
+    const stories = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if (!stories.length) { bar.style.display='none'; return; }
+    bar.style.display = 'flex';
+    // Group by user
+    const byUser = {};
+    stories.forEach(s => {
+      if (!byUser[s.userId]) byUser[s.userId] = [];
+      byUser[s.userId].push(s);
+    });
+    // My story first
+    const uids = Object.keys(byUser);
+    const myIdx = uids.indexOf(currentUser.uid);
+    if (myIdx > 0) { uids.splice(myIdx,1); uids.unshift(currentUser.uid); }
+
+    bar.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0" onclick="uploadStory()">
+        <div style="width:58px;height:58px;border-radius:50%;background:var(--card);border:2px dashed var(--accent1);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--accent1)">+</div>
+        <span style="font-size:11px;color:var(--accent1);font-weight:600">My Story</span>
+      </div>` +
+      uids.filter(uid=>uid!==currentUser.uid).map(uid => {
+        const us = byUser[uid];
+        const u = us[0];
+        const seen = (JSON.parse(localStorage.getItem('sx_seen_stories')||'[]')).includes(uid);
+        return `<div class="story-item" onclick="openStories('${uid}')">
+          <div class="story-ring${seen?' seen':''}">
+            <div class="story-avatar">${u.userAvatar?`<img src="${u.userAvatar}">`:''}${!u.userAvatar?getInitial(u.username):''}</div>
+          </div>
+          <span class="story-name">${u.username||'user'}</span>
+        </div>`;
+      }).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function uploadStory() {
+  const input = document.createElement('input');
+  input.type='file'; input.accept='image/*';
+  input.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    showToast('Uploading story...');
+    try {
+      const url = await uploadToCloudinary(file, ()=>{});
+      await db.collection('stories').add({
+        userId: currentUser.uid,
+        username: currentUserData?.username||'@user',
+        userAvatar: currentUserData?.avatar||'',
+        url, type:'image',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      showToast('Story posted! ✓');
+      loadStories();
+    } catch(e) { showToast('Upload failed'); }
+  };
+  input.click();
+}
+
+async function openStories(userId) {
+  const expiry = new Date(Date.now() - 24*60*60*1000);
+  const snap = await db.collection('stories')
+    .where('userId','==',userId)
+    .where('createdAt','>=',firebase.firestore.Timestamp.fromDate(expiry))
+    .orderBy('createdAt','asc').get();
+  currentStories = snap.docs.map(d=>({id:d.id,...d.data()}));
+  if (!currentStories.length) return showToast('No stories');
+  currentStoryIndex = 0;
+  // mark seen
+  let seen = JSON.parse(localStorage.getItem('sx_seen_stories')||'[]');
+  if (!seen.includes(userId)) { seen.push(userId); localStorage.setItem('sx_seen_stories',JSON.stringify(seen)); }
+  document.getElementById('story-viewer').classList.add('open');
+  renderStory();
+}
+
+function renderStory() {
+  const s = currentStories[currentStoryIndex];
+  if (!s) { closeStoryViewer(); return; }
+  document.getElementById('sv-media').src = s.url;
+  document.getElementById('sv-username').textContent = s.username||'@user';
+  document.getElementById('sv-time').textContent = timeAgo(s.createdAt?.toDate?.());
+  const av = document.getElementById('sv-avatar');
+  av.innerHTML = s.userAvatar ? `<img src="${s.userAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : getInitial(s.username);
+  // Progress
+  const prog = document.getElementById('story-progress');
+  prog.innerHTML = currentStories.map((_,i)=>`<div class="story-seg"><div class="story-seg-fill" id="seg-${i}"></div></div>`).join('');
+  // Fill past segments
+  for(let i=0;i<currentStoryIndex;i++) { const el=document.getElementById(`seg-${i}`); if(el) el.style.width='100%'; }
+  // Animate current
+  clearTimeout(storyTimer);
+  const cur = document.getElementById(`seg-${currentStoryIndex}`);
+  if (cur) {
+    cur.style.transition = `width ${STORY_DURATION}ms linear`;
+    setTimeout(()=>{ cur.style.width='100%'; },50);
+  }
+  storyTimer = setTimeout(storyNext, STORY_DURATION);
+}
+
+function storyNext() {
+  clearTimeout(storyTimer);
+  if (currentStoryIndex < currentStories.length-1) { currentStoryIndex++; renderStory(); }
+  else closeStoryViewer();
+}
+
+function storyPrev() {
+  clearTimeout(storyTimer);
+  if (currentStoryIndex > 0) { currentStoryIndex--; renderStory(); }
+}
+
+function closeStoryViewer() {
+  clearTimeout(storyTimer);
+  document.getElementById('story-viewer').classList.remove('open');
+  document.getElementById('sv-media').src = '';
+  currentStories = [];
+}
+
+// ═══════════════════════════════════════════
+// CREATOR ANALYTICS
+// ═══════════════════════════════════════════
+async function openAnalytics() {
+  showPage('analytics');
+  const body = document.getElementById('analytics-body');
+  body.innerHTML = '<div style="padding:60px;text-align:center"><i class="fas fa-spinner fa-spin" style="font-size:28px;color:var(--accent1)"></i></div>';
+  try {
+    const [uSnap, vSnap] = await Promise.all([
+      db.collection('users').doc(currentUser.uid).get(),
+      db.collection('videos').where('userId','==',currentUser.uid).orderBy('createdAt','desc').limit(30).get()
+    ]);
+    const u = uSnap.data();
+    const vids = vSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const totalViews = vids.reduce((a,v)=>a+(v.views||0),0);
+    const totalLikes = vids.reduce((a,v)=>a+(v.likes||0),0);
+    const totalComments = vids.reduce((a,v)=>a+(v.comments||0),0);
+    const engRate = totalViews > 0 ? ((totalLikes+totalComments)/totalViews*100).toFixed(1) : '0';
+    // Last 7 days bar chart (by createdAt)
+    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const viewsByDay = [0,0,0,0,0,0,0];
+    vids.forEach(v => {
+      const d = v.createdAt?.toDate?.();
+      if (d) { const day = (d.getDay()+6)%7; viewsByDay[day] += (v.views||0); }
+    });
+    const maxV = Math.max(...viewsByDay,1);
+    const topVids = [...vids].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,5);
+    body.innerHTML = `
+      <div style="padding:20px;background:linear-gradient(135deg,rgba(124,58,255,.15),rgba(0,198,255,.08));border-bottom:1px solid var(--border)">
+        <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800">Your Stats</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px">Last 30 posts performance</div>
+      </div>
+      <div class="analytics-stat-grid">
+        <div class="analytics-stat"><div class="analytics-stat-num">${fmtN(totalViews)}</div><div class="analytics-stat-label">👁 Total Views</div></div>
+        <div class="analytics-stat"><div class="analytics-stat-num">${fmtN(totalLikes)}</div><div class="analytics-stat-label">❤️ Total Likes</div></div>
+        <div class="analytics-stat"><div class="analytics-stat-num">${fmtN(u?.followers||0)}</div><div class="analytics-stat-label">👥 Followers</div></div>
+        <div class="analytics-stat"><div class="analytics-stat-num">${engRate}%</div><div class="analytics-stat-label">📈 Engagement</div></div>
+      </div>
+      <div class="analytics-chart">
+        <h3>Views by day of week</h3>
+        <div class="bar-chart">
+          ${viewsByDay.map((v,i)=>`
+            <div class="bar-col">
+              <div class="bar-fill" style="height:${Math.round(v/maxV*72)+4}px"></div>
+              <div class="bar-label">${days[i]}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div style="padding:0 16px 10px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700">🏆 Top Posts</div>
+      ${topVids.map(v=>`
+        <div class="top-video-item">
+          ${v.type==='video'?`<video src="${v.url}" class="top-video-thumb" muted preload="metadata">`:`<img src="${v.photoUrls?v.photoUrls[0]:v.url}" class="top-video-thumb" loading="lazy">`}
+          <div class="top-video-info">
+            <div class="top-video-caption">${escHtml(v.caption||'No caption')}</div>
+            <div class="top-video-stats">👁 ${fmtN(v.views||0)} · ❤️ ${fmtN(v.likes||0)} · 💬 ${fmtN(v.comments||0)}</div>
+          </div>
+        </div>`).join('')}
+      ${!topVids.length?'<div class="empty-state"><i class="fas fa-video"></i><h3>No posts yet</h3></div>':''}
+      <div style="height:20px"></div>`;
+  } catch(e) { body.innerHTML='<div class="empty-state"><i class="fas fa-wifi-slash"></i><h3>Could not load</h3></div>'; }
+}
+
 // ═══════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════
@@ -2298,6 +2632,50 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2500);
+}
+// ═══════════════════════════════════════════
+// PWA - SERVICE WORKER REGISTRATION
+// ═══════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW failed:', err));
+  });
+}
+
+// PWA Install prompt — Fast & Furious ⚡
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show instantly when app is ready — no delay
+  showInstallBanner();
+});
+
+function showInstallBanner() {
+  if (!deferredPrompt) return;
+  const banner = document.createElement('div');
+  banner.id = 'pwa-banner';
+  banner.style.cssText = `position:fixed;bottom:80px;left:12px;right:12px;background:var(--card);border:1px solid var(--accent1);border-radius:16px;padding:14px 16px;z-index:300;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.5)`;
+  banner.innerHTML = `
+    <div style="width:42px;height:42px;background:var(--grad);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff;flex-shrink:0">SX</div>
+    <div style="flex:1">
+      <div style="font-weight:700;font-size:14px">Install Stream X</div>
+      <div style="font-size:12px;color:var(--muted)">Add to home screen for best experience</div>
+    </div>
+    <button onclick="installPWA()" style="background:var(--grad);color:#fff;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700">Install</button>
+    <button onclick="document.getElementById('pwa-banner').remove()" style="color:var(--muted);font-size:18px;padding:4px"><i class="fas fa-xmark"></i></button>`;
+  document.body.appendChild(banner);
+}
+
+async function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('pwa-banner')?.remove();
+  if (result.outcome === 'accepted') showToast('Stream X installed! 🎉');
 }
 </script>
 </body>
